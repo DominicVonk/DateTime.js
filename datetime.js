@@ -2,8 +2,7 @@
  * Author: Dominic Vonk
  * Class: DateTime
  */
- 
-(function(_) { 
+ (function(_) { 
 _.DateTime = function (year, month, day, hour, minute, second) {
 	
 		var date;
@@ -113,54 +112,28 @@ _.DateTime.Difference = function(date1, date2) {
 	var largeDate = (date1.Time() > date2.Time()) ? date1 : date2;
 	var smallDate = (date1.Time() > date2.Time()) ? date2 : date1;
 	var results = {
-		years: 0,
-		months: 0,
-		days: 0,
-		hours: 0,
-		minutes: 0,
-		seconds : 0
+		year: 0,
+		month: 0,
+		day: 0,
+		hour: 0,
+		minute: 0,
+		second : 0
 	};
 	for(var result in results) {
 		var add = 0;
-		if (result == "years") {
-			while (largeDate.Year() > smallDate.Year()) {
+
+			while (largeDate[result.substr(0, 1).toUpperCase() + result.substr(0)]() > smallDate[result.substr(0, 1).toUpperCase() + result.substr(0)]()) {
 				add++;
-				smallDate.AddYears(add);
+				smallDate['Add' + result.substr(0, 1).toUpperCase() + result.substr(0) + 's'](add);
 			}
-		}
-		else if (result == "months") {
-			while (largeDate.Month() > smallDate.Month()) {
-				add++;
-				smallDate.AddMonths(add);
-			}
-		}
-		else if (result == "days") {
-			while (largeDate.Day() > smallDate.Day()) {
-				add++;
-				smallDate.AddDays(add);
-			}
-		}
-		else if (result == "hours") {
-			while (largeDate.Hour() > smallDate.Hour()) {
-				add++;
-				smallDate.AddHours(add);
-			}
-		}
-		else if (result == "minutes") {
-			while (largeDate.Minute() > smallDate.Minute()) {
-				add++;
-				smallDate.AddMinutes(add);
-			}
-		}
-		else if (result == "seconds") {
-			while (largeDate.Second() > smallDate.Second()) {
-				add++;
-				smallDate.AddSeconds(add);
-			}
-		}
 	  results[result] = add;
 	}
 	return results;
+};
+_.DateTime.DayDifference = function(date1, date2) {
+	var largeDate = (date1.Time() > date2.Time()) ? Date.UTC(date1.Year(), date1.Month()-1, date1.Day()) :  Date.UTC(date2.Year(), date2.Month()-1, date2.Day());
+	var smallDate = (date1.Time() > date2.Time()) ?  Date.UTC(date2.Year(), date2.Month()-1, date2.Day()) :  Date.UTC(date1.Year(), date1.Month()-1, date1.Day());
+	return Math.floor(Math.abs(largeDate - smallDate) / (24*60*60*1000));
 };
 _.DateTime.Today = function() { 
 	var dt = new Date();
