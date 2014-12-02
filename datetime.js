@@ -122,10 +122,9 @@ _.DateTime.Difference = function(date1, date2) {
 	};
 	for(var result in results) {
 		var add = 0;
-
-			while (largeDate[result.substr(0, 1).toUpperCase() + result.substr(0)]() > smallDate[result.substr(0, 1).toUpperCase() + result.substr(0)]()) {
+			while (largeDate[result.substr(0, 1).toUpperCase() + result.substr(1)]() > smallDate[result.substr(0, 1).toUpperCase() + result.substr(1)]()) {
 				add++;
-				smallDate['Add' + result.substr(0, 1).toUpperCase() + result.substr(0) + 's'](add);
+				smallDate['Add' + result.substr(0, 1).toUpperCase() + result.substr(1) + 's'](add);
 			}
 	  results[result] = add;
 	}
@@ -145,4 +144,3 @@ _.DateTime.Today = function() {
 	);
 };
 })(window);
-
