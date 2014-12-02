@@ -14,7 +14,7 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 		}
 		return {
 			AddDays : function(days) {
-				date = new Date(date.getTime() + (days * 24*60*60*1000));
+				date = new Date(date.getFullYear(), date.getMonth(), date.getDate() + days, date.getHours(), date.getMinutes(), date.getSeconds());
 			},
 			AddHours : function(hours) {
 				date = new Date(date.getTime() + (hours *60*60*1000));
