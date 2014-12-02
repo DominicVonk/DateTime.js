@@ -5,11 +5,12 @@
  
 (function(_) { 
 _.DateTime = function (year, month, day, hour, minute, second) {
+	
 		var date;
 		if (typeof month === "undefined") {
 			date = new Date(year);
 		} else {
-			date = new Date(year, month, (typeof day !== "undefined" ? day : 1), (typeof hour !== "undefined" ? hour : 0), (typeof minute !== "undefined" ? minute : 0), (typeof second !== "undefined" ? second : 0));
+			date = new Date(year, month-1, (typeof day !== "undefined" ? day : 1), (typeof hour !== "undefined" ? hour : 0), (typeof minute !== "undefined" ? minute : 0), (typeof second !== "undefined" ? second : 0));
 		}
 		return {
 			AddDays : function(days) {
@@ -71,11 +72,21 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 			},
 			Time : function() {
 				return date.getTime();
+			},
+			Format: function(form) {
+				return form.replace(/(m)/, this.Minute())
+						.replace(/(Y)/, this.Year())
+						.replace(/(M)/, this.Month())
+						.replace(/(s)/, this.Second())
+						.replace(/(d)/, this.DayOfWeek())
+						.replace(/(D)/, this.Day())
+						.replace(/(y)/, this.DayOfYear())
+						.replace(/(h)/, this.Hour());
 			}
 		};
 	
 };
-_.DateTime.UtcNow = function() {
+_.DateTime.UTC = function() {
 	var now = new Date();
 	dt = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
 	return new _.DateTime(
@@ -160,3 +171,4 @@ _.DateTime.Today = function() {
 	);
 };
 })(window);
+
