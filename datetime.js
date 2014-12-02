@@ -75,7 +75,7 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 		};
 	
 };
-_.DateTime.UTC = function() {
+_.DateTime.UtcNow = function() {
 	var now = new Date();
 	dt = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
 	return new _.DateTime(
