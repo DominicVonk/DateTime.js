@@ -5,7 +5,6 @@
  
 (function(_) { 
 _.DateTime = function (year, month, day, hour, minute, second) {
-	
 		var date;
 		if (typeof month === "undefined") {
 			date = new Date(year);
