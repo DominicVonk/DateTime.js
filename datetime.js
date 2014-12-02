@@ -1,6 +1,7 @@
 /**
  * Author: Dominic Vonk
  * Class: DateTime
+ * Github: https://github.com/DominicVonk/DateTime.js
  */
  (function(_) { 
 _.DateTime = function (year, month, day, hour, minute, second) {
