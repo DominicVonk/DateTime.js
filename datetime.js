@@ -110,8 +110,9 @@ _.DateTime.Now = function() {
 	);
 };
 _.DateTime.Difference = function(date1, date2) {
-	var largeDate = (date1.Time() > date2.Time()) ? date1 : date2;
-	var smallDate = (date1.Time() > date2.Time()) ? date2 : date1;
+	var largeDate = (date1.Time() > date2.Time()) ? new DateTime(date1.Time()) : new DateTime(date2.Time());
+	var smallDate = (date1.Time() > date2.Time()) ? new DateTime(date2.Time()) : new DateTime(date1.Time());
+	var names = ["year", "month", "day", "hour", "minute", "second"];
 	var results = {
 		year: 0,
 		month: 0,
@@ -120,13 +121,26 @@ _.DateTime.Difference = function(date1, date2) {
 		minute: 0,
 		second : 0
 	};
-	for(var result in results) {
+	for(var i = 0; i < names.length; i++) {
+		var result = names[i];
 		var add = 0;
-			while (largeDate[result.substr(0, 1).toUpperCase() + result.substr(1)]() > smallDate[result.substr(0, 1).toUpperCase() + result.substr(1)]()) {
-				add++;
-				smallDate['Add' + result.substr(0, 1).toUpperCase() + result.substr(1) + 's'](add);
-			}
-	  results[result] = add;
+		var calc = largeDate[result.substr(0, 1).toUpperCase() + result.substr(1)]() - smallDate[result.substr(0, 1).toUpperCase() + result.substr(1)]();
+		var largeVal = largeDate[result.substr(0, 1).toUpperCase() + result.substr(1)]();
+		if (calc < 0 && result == "day") {
+			largeDate['Add' + names[i-1].substr(0, 1).toUpperCase() + names[i-1].substr(1) + 's'](-1);
+			largeVal += largeDate.DaysInMonth();
+			results[names[i-1]]--;
+		}  else if (calc < 0 && result == "month") {
+			largeVal += 12;
+			results[names[i-1]]--;
+		} else if (calc < 0) {
+			largeVal += 1;
+			results[names[i-1]]--;
+		}
+		
+		add = largeVal - smallDate[result.substr(0, 1).toUpperCase() + result.substr(1)]();
+		
+	  	results[result] = add;
 	}
 	return results;
 };
