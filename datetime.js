@@ -7,7 +7,9 @@
 _.DateTime = function (year, month, day, hour, minute, second) {
 	
 		var date;
-		if (typeof month === "undefined") {
+		if (typeof year === "undefined") {
+			date = new Date();
+		} else if (typeof month === "undefined") {
 			date = new Date(year);
 		} else {
 			date = new Date(year, month-1, (typeof day !== "undefined" ? day : 1), (typeof hour !== "undefined" ? hour : 0), (typeof minute !== "undefined" ? minute : 0), (typeof second !== "undefined" ? second : 0));
@@ -41,7 +43,7 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 			  return date.getDate();
 			},
 			DayOfWeek: function() {
-			  return date.getDay();
+			  return date.getDay() > 0 ? date.getDay() : 7;
 			},
 			DayOfYear: function() {
 			  return Math.ceil((date - new Date(date.getFullYear(), 1, 1)) / (24*60*60*1000));
@@ -76,6 +78,54 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 			QuarterOfYear: function() {
 				return Math.floor((date.getMonth())/3)+1;
 			},
+			DayDifference: function(date1) {
+				var date2 = new _.DateTime(this.Time());
+				var largeDate = (date1.Time() > date2.Time()) ? Date.UTC(date1.Year(), date1.Month()-1, date1.Day()) :  Date.UTC(date2.Year(), date2.Month()-1, date2.Day());
+				var smallDate = (date1.Time() > date2.Time()) ?  Date.UTC(date2.Year(), date2.Month()-1, date2.Day()) :  Date.UTC(date1.Year(), date1.Month()-1, date1.Day());
+				return Math.floor(Math.abs(largeDate - smallDate) / (24*60*60*1000));
+			},
+			Difference: function(date1) {
+				var date2 = new _.DateTime(this.Time());
+				var largeDate = (date1.Time() > date2.Time()) ? new DateTime(date1.Time()) : new DateTime(date2.Time());
+				var smallDate = (date1.Time() > date2.Time()) ? new DateTime(date2.Time()) : new DateTime(date1.Time());
+				var names = ["year", "month", "day", "hour", "minute", "second"];
+				var results = {
+					year: 0,
+					month: 0,
+					day: 0,
+					hour: 0,
+					minute: 0,
+					second : 0
+				};
+				for(var i = 0; i < names.length; i++) {
+					var result = names[i];
+					var add = 0;
+					var calc = largeDate[result.substr(0, 1).toUpperCase() + result.substr(1)]() - smallDate[result.substr(0, 1).toUpperCase() + result.substr(1)]();
+					var largeVal = largeDate[result.substr(0, 1).toUpperCase() + result.substr(1)]();
+					if (calc < 0 && result == "day") {
+						largeDate['Add' + names[i-1].substr(0, 1).toUpperCase() + names[i-1].substr(1) + 's'](-1);
+						largeVal += largeDate.DaysInMonth();
+						results[names[i-1]]--;
+					}  else if (calc < 0 && result == "month") {
+						largeVal += 12;
+						results[names[i-1]]--;
+					} else if (calc < 0) {
+						largeVal += 1;
+						results[names[i-1]]--;
+					}
+					
+					add = largeVal - smallDate[result.substr(0, 1).toUpperCase() + result.substr(1)]();
+					
+				  	results[result] = add;
+				}
+				return results;
+			},
+			Week: function() {
+				var a = new DateTime(date.getFullYear(), 1, 1);
+				var minus = a.DayOfWeek();
+				var days = this.DayDifference(a);
+				return Math.ceil((days-(7-minus))/7)+1;
+			},
 			Format: function(form) {
 				return form.replace(/(m)/, this.Minute())
 						.replace(/(Y)/, this.Year())
@@ -87,14 +137,13 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 						.replace(/(h)/, this.Hour());
 			}
 		};
-	
 };
 _.DateTime.UTC = function() {
 	var now = new Date();
 	dt = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
 	return new _.DateTime(
 		parseInt(dt.getFullYear()),
-		parseInt(dt.getMonth()),
+		parseInt(dt.getMonth()+1),
 		parseInt(dt.getDate()),
 		parseInt(dt.getHours()),
 		parseInt(dt.getMinutes()),
@@ -105,7 +154,7 @@ _.DateTime.Now = function() {
 	var dt = new Date();
 	return new _.DateTime(
 		parseInt(dt.getFullYear()),
-		parseInt(dt.getMonth()),
+		parseInt(dt.getMonth()+1),
 		parseInt(dt.getDate()),
 		parseInt(dt.getHours()),
 		parseInt(dt.getMinutes()),
@@ -156,7 +205,7 @@ _.DateTime.Today = function() {
 	var dt = new Date();
 	return new DateTime(
 		dt.getFullYear(),
-		dt.getMonth(),
+		dt.getMonth()+1,
 		dt.getDate()
 	);
 };
