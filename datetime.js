@@ -73,6 +73,9 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 			Time : function() {
 				return date.getTime();
 			},
+			QuarterOfYear: function() {
+				return Math.floor((date.getMonth())/3)+1;
+			},
 			Format: function(form) {
 				return form.replace(/(m)/, this.Minute())
 						.replace(/(Y)/, this.Year())
