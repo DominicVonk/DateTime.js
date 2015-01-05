@@ -1,4 +1,3 @@
-
 /**
  * Author: Dominic Vonk
  * Class: DateTime
@@ -8,7 +7,9 @@
 _.DateTime = function (year, month, day, hour, minute, second) {
 	
 		var date;
-		if (typeof month === "undefined") {
+		if (typeof year === "undefined") {
+			date = new Date();
+		} else if (typeof month === "undefined") {
 			date = new Date(year);
 		} else {
 			date = new Date(year, month-1, (typeof day !== "undefined" ? day : 1), (typeof hour !== "undefined" ? hour : 0), (typeof minute !== "undefined" ? minute : 0), (typeof second !== "undefined" ? second : 0));
@@ -42,7 +43,7 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 			  return date.getDate();
 			},
 			DayOfWeek: function() {
-			  return date.getDay();
+			  return date.getDay() > 0 ? date.getDay() : 7;
 			},
 			DayOfYear: function() {
 			  return Math.ceil((date - new Date(date.getFullYear(), 1, 1)) / (24*60*60*1000));
@@ -160,7 +161,6 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 				return Math.floor(Math.abs(largeDate - smallDate) / (24*60*60*1000));
 			}
 		};
-	
 };
 _.DateTime.UTC = function() {
 	var now = new Date();
@@ -197,31 +197,6 @@ _.DateTime.Now = function() {
 		parseInt(dt.getMinutes()),
 		parseInt(dt.getSeconds())
 	);
-};
-function repeat(s, n){
-    var a = [];
-    while(a.length < n){
-        a.push(s);
-    }
-    return a.join('');
-}
-_.DateTime.NextRepeat = function(days) {
-	var next = "";
-	var next2 = "";
-	var daysStr = days + "";
-	
-	if (daysStr.substr(0, 1) == 9) {
-		next = repeat(parseInt(daysStr.substr(0, 1)), daysStr.length);
-		next2 = repeat(1, daysStr.length + 1);
-	} else {
-		next = repeat(parseInt(daysStr.substr(0, 1)), daysStr.length);;
-		next2 = repeat(parseInt(daysStr.substr(0, 1))+1, daysStr.length);
-	}
-	if (days > next) {
-		return next2;
-	} else {
-		return next;
-	}
 };
 _.DateTime.Difference = function(date1, date2) {
 	var largeDate = (date1.Time() > date2.Time()) ? new DateTime(date1.Time()) : new DateTime(date2.Time());
