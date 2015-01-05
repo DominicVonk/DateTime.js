@@ -161,6 +161,7 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 				return Math.floor(Math.abs(largeDate - smallDate) / (24*60*60*1000));
 			}
 		};
+		
 };
 _.DateTime.UTC = function() {
 	var now = new Date();
