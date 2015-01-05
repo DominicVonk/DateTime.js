@@ -1,3 +1,4 @@
+
 /**
  * Author: Dominic Vonk
  * Class: DateTime
@@ -7,9 +8,7 @@
 _.DateTime = function (year, month, day, hour, minute, second) {
 	
 		var date;
-		if (typeof year === "undefined") {
-			date = new Date();
-		} else if (typeof month === "undefined") {
+		if (typeof month === "undefined") {
 			date = new Date(year);
 		} else {
 			date = new Date(year, month-1, (typeof day !== "undefined" ? day : 1), (typeof hour !== "undefined" ? hour : 0), (typeof minute !== "undefined" ? minute : 0), (typeof second !== "undefined" ? second : 0));
@@ -43,7 +42,7 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 			  return date.getDate();
 			},
 			DayOfWeek: function() {
-			  return date.getDay() > 0 ? date.getDay() : 7;
+			  return date.getDay();
 			},
 			DayOfYear: function() {
 			  return Math.ceil((date - new Date(date.getFullYear(), 1, 1)) / (24*60*60*1000));
@@ -56,6 +55,9 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 			},
 			Minute: function() {
 			  return date.getMinutes();
+			},
+			Quarter: function() {
+				return Math.floor(date.getMonth() / 3)+1;
 			},
 			Month: function() {
 			  return date.getMonth()+1;
@@ -75,19 +77,51 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 			Time : function() {
 				return date.getTime();
 			},
-			QuarterOfYear: function() {
-				return Math.floor((date.getMonth())/3)+1;
+			Week : function() {
+				var startDay = new Date(date.getFullYear, 1, 1).getDay();
+				return (this.DayOfYear()-startDay/7)+1;
 			},
-			DayDifference: function(date1) {
-				var date2 = new _.DateTime(this.Time());
-				var largeDate = (date1.Time() > date2.Time()) ? Date.UTC(date1.Year(), date1.Month()-1, date1.Day()) :  Date.UTC(date2.Year(), date2.Month()-1, date2.Day());
-				var smallDate = (date1.Time() > date2.Time()) ?  Date.UTC(date2.Year(), date2.Month()-1, date2.Day()) :  Date.UTC(date1.Year(), date1.Month()-1, date1.Day());
-				return Math.floor(Math.abs(largeDate - smallDate) / (24*60*60*1000));
+			DaysTillNext : function(set) {
+				if (set < 7) {
+					return set+7 - date.getDay();
+				}
+				else if (set == 7) {
+					return 7 - date.getDay();
+				} else if (set == 8) {
+					return this.DayDifference(new DateTime(date.getFullYear(), date.getMonth()+2, 1));
+				} else if (set == 9) {
+					return this.DayDifference(new DateTime(date.getFullYear()+1, 1, 1));
+				} else if (set == 10) {
+					var y = parseInt(date.getFullYear());
+					var m = parseInt(date.getMonth()+1);
+					if (m < 4) {
+						m = 4;
+					} else if (m < 7) {
+						m = 7;
+					} else if (m < 10) {
+						m = 10;
+					} else {
+						m = 1;
+						y += 1;
+					}
+
+					return this.DayDifference(new DateTime(y, m, 1));
+				}
+				return -1;
 			},
-			Difference: function(date1) {
-				var date2 = new _.DateTime(this.Time());
-				var largeDate = (date1.Time() > date2.Time()) ? new DateTime(date1.Time()) : new DateTime(date2.Time());
-				var smallDate = (date1.Time() > date2.Time()) ? new DateTime(date2.Time()) : new DateTime(date1.Time());
+			Format: function(form) {
+				return form.replace(/(m)/g, this.Minute())
+						.replace(/(Y)/g, this.Year())
+						.replace(/(M)/g, this.Month())
+						.replace(/(s)/g, this.Second())
+						.replace(/(d)/g, this.DayOfWeek())
+						.replace(/(D)/g, this.Day())
+						.replace(/(y)/g, this.DayOfYear())
+						.replace(/(h)/g, this.Hour());
+			},
+			Difference : function(date2) {
+				var largeDate = (this.Time() > date2.Time()) ? new DateTime(this.Time()) : new DateTime(date2.Time());
+				var smallDate = (this.Time() > date2.Time()) ? new DateTime(date2.Time()) : new DateTime(this.Time());
 				var names = ["year", "month", "day", "hour", "minute", "second"];
 				var results = {
 					year: 0,
@@ -120,23 +154,13 @@ _.DateTime = function (year, month, day, hour, minute, second) {
 				}
 				return results;
 			},
-			Week: function() {
-				var a = new DateTime(date.getFullYear(), 1, 1);
-				var minus = a.DayOfWeek();
-				var days = this.DayDifference(a);
-				return Math.ceil((days-(7-minus))/7)+1;
-			},
-			Format: function(form) {
-				return form.replace(/(m)/, this.Minute())
-						.replace(/(Y)/, this.Year())
-						.replace(/(M)/, this.Month())
-						.replace(/(s)/, this.Second())
-						.replace(/(d)/, this.DayOfWeek())
-						.replace(/(D)/, this.Day())
-						.replace(/(y)/, this.DayOfYear())
-						.replace(/(h)/, this.Hour());
+			DayDifference : function(date2) {
+				var largeDate = (this.Time() > date2.Time()) ? Date.UTC(this.Year(), this.Month()-1, this.Day()) :  Date.UTC(date2.Year(), date2.Month()-1, date2.Day());
+				var smallDate = (this.Time() > date2.Time()) ?  Date.UTC(date2.Year(), date2.Month()-1, date2.Day()) :  Date.UTC(this.Year(), this.Month()-1, this.Day());
+				return Math.floor(Math.abs(largeDate - smallDate) / (24*60*60*1000));
 			}
 		};
+	
 };
 _.DateTime.UTC = function() {
 	var now = new Date();
@@ -150,6 +174,19 @@ _.DateTime.UTC = function() {
 		parseInt(dt.getSeconds())
 	);
 };
+_.DateTime.Constants = {
+	Sunday: 0,
+	Monday: 1,
+	Tuesday: 2,
+	Wednesday: 3,
+	Thursday: 4,
+	Friday: 5,
+	Saturday: 6,
+	Week: 7,
+	Month: 8,
+	Year: 9,
+	Quarter: 10
+};
 _.DateTime.Now = function() { 
 	var dt = new Date();
 	return new _.DateTime(
@@ -160,6 +197,31 @@ _.DateTime.Now = function() {
 		parseInt(dt.getMinutes()),
 		parseInt(dt.getSeconds())
 	);
+};
+function repeat(s, n){
+    var a = [];
+    while(a.length < n){
+        a.push(s);
+    }
+    return a.join('');
+}
+_.DateTime.NextRepeat = function(days) {
+	var next = "";
+	var next2 = "";
+	var daysStr = days + "";
+	
+	if (daysStr.substr(0, 1) == 9) {
+		next = repeat(parseInt(daysStr.substr(0, 1)), daysStr.length);
+		next2 = repeat(1, daysStr.length + 1);
+	} else {
+		next = repeat(parseInt(daysStr.substr(0, 1)), daysStr.length);;
+		next2 = repeat(parseInt(daysStr.substr(0, 1))+1, daysStr.length);
+	}
+	if (days > next) {
+		return next2;
+	} else {
+		return next;
+	}
 };
 _.DateTime.Difference = function(date1, date2) {
 	var largeDate = (date1.Time() > date2.Time()) ? new DateTime(date1.Time()) : new DateTime(date2.Time());
